@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="reading">
+
+    <p class="eyebrow">任务介绍</p>
+
+    <h1>请根据地图信息完成逃生决策。</h1>
+
+    <div class="reading-body">
+
+        <p>
+            接下来，您会看到一张商场三楼的疏散地图。
+            请仔细观察地图中的<strong>空间布局、安全出口和其他疏散设施的位置以及疏散通道连通性</strong>，
+            并根据地图信息形成您的逃生判断。
+        </p>
+
+        <p>
+            地图将展示 <strong>40 秒</strong>。
+            地图关闭后，系统将呈现不同的火灾情境，
+            以下情境主要了解您在<strong>不同情况下的实际疏散选择，并非知识测试</strong>。
+            请您<strong>根据刚才获得的地图信息完成相应的逃生决策</strong>。
+        </p>
+
+        <p>
+            请按照您的<strong>真实判断</strong>完成任务。
+            本实验没有时间竞争要求，请根据您实际获得的信息进行选择。
+        </p>
+
+    </div>
+
+    <form method="post">
+        <label class="check acknowledge">
+            <input
+                type="checkbox"
+                name="understood"
+                value="yes"
+                required
+            >
+            我已理解上述任务说明。
+        </label>
+
+        <button class="primary">开始实验</button>
+    </form>
+
+</main>
+{% endblock %}

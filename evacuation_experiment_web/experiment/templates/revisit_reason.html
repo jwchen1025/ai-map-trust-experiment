@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="reading">
+  <p class="eyebrow">行为任务完成</p>
+  <h1>关于刚才再次查看地图</h1>
+  <div class="reading-body"><p>刚才您选择再次查看地图，主要是因为：</p></div>
+  <form method="post"><label class="option"><input type="radio" name="reason_code" value="memory" required><span>A. 没有完全记清地图中的位置或路径信息</span></label><label class="option"><input type="radio" name="reason_code" value="reliability" required><span>B. 希望进一步确认地图信息是否可靠</span></label><label class="option"><input type="radio" name="reason_code" value="both" required><span>C. 两方面都有</span></label><label class="option"><input type="radio" name="reason_code" value="other" required><span>D. 其他原因</span></label><label for="other_reason">如选择“其他原因”，请说明</label><textarea id="other_reason" name="other_reason" rows="4"></textarea><button class="primary">继续</button></form>
+</main>
+{% endblock %}

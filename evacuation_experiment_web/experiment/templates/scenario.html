@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+.review-choice-box {
+    max-width: 680px;
+    padding: 34px;
+}
+
+.review-choice-box .eyebrow {
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.review-choice-box h2 {
+    font-size: 30px;
+    margin: 0;
+}
+
+.review-choice-box .review-copy {
+    text-align: left;
+    font-size: 17px;
+    line-height: 1.8;
+    margin: 22px 0 0;
+}
+
+.review-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.review-actions form {
+    margin: 0;
+}
+
+/* 为较长的火灾情境保留足够的阅读宽度。 */
+.scenario-layout {
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 64px);
+}
+
+.scenario-work {
+    width: 100%;
+    max-width: none;
+}
+
+.scenario-work h1 {
+    max-width: none;
+    font-size: clamp(24px, 2.5vw, 36px);
+    line-height: 1.38;
+    letter-spacing: -0.025em;
+}
+
+/* 信心量表两端仅为语义说明，不继承评分按钮样式。 */
+.confidence .scale-ends span {
+    display: block;
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+@media (max-width: 760px) {
+    .scenario-layout {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .review-choice-box {
+        padding: 24px;
+    }
+
+    .review-choice-box h2 {
+        font-size: 25px;
+    }
+
+    .review-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .review-actions button,
+    .review-actions form {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<main class="scenario-layout">
+
+    <!-- 左侧信息区 -->
+    <aside class="scenario-aside">
+
+        <p>
+            情境 {{ index + 1 }} / {{ total }}
+        </p>
+
+        <p class="muted">
+            请根据此前获得的地图信息和您的实际判断做出选择。
+        </p>
+
+        {% if revisit_used %}
+
+            <button
+                type="button"
+                class="secondary"
+                disabled
+            >
+                已重新查看地图
+            </button>
+
+        {% else %}
+
+            <button
+                id="open-review"
+                type="button"
+                class="secondary"
+            >
+                重新查看地图
+            </button>
+
+        {% endif %}
+
+    </aside>
+
+
+    <!-- 右侧情境任务 -->
+    <section class="scenario-work">
+
+        <p class="eyebrow">火灾情境</p>
+
+        <h1>{{ item.prompt }}</h1>
+
+        <form method="post">
+
+            <!-- 疏散出口选择 -->
+            <fieldset>
+
+                <legend>
+                    在这种情况下，您会选择哪个出口进行疏散？
+                </legend>
+
+                {% for code, label in item.options %}
+
+                <label class="option">
+
+                    <input
+                        type="radio"
+                        name="selected_exit"
+                        value="{{ code }}"
+                        required
+                    >
+
+                    <span>{{ label }}</span>
+
+                </label>
+
+                {% endfor %}
+
+            </fieldset>
+
+
+            <!-- 决策信心 -->
+            <fieldset class="confidence">
+
+                <legend>
+                    您对自己的选择有多大信心？
+                </legend>
+
+                <div>
+
+                    {% for score in range(1, 8) %}
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="confidence"
+                            value="{{ score }}"
+                            required
+                        >
+
+                        <span>{{ score }}</span>
+
+                    </label>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="scale-ends">
+                    <span>1 = 非常没有信心</span>
+                    <span>7 = 非常有信心</span>
+                </div>
+
+            </fieldset>
+
+
+            <button
+                class="primary"
+                type="submit"
+            >
+                确认选择
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<!-- 重新查看地图确认弹窗 -->
+<div
+    id="review-modal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="review-title"
+>
+
+    <section class="revisit-box review-choice-box">
+
+        <p class="eyebrow">
+            决策前确认
+        </p>
+
+        <h2 id="review-title">
+            是否需要再次查看地图？
+        </h2>
+
+        <p class="review-copy">
+            在做出逃生决定之前，如果您认为已有的信息足以支持您的判断，
+            可以直接作答；如果您认为还需要进一步确认地图信息，
+            可以选择再次查看地图。
+            是否重新查看由您自行决定。
+        </p>
+
+        <div class="review-actions">
+
+            <button
+                id="return-to-answer"
+                class="secondary"
+                type="button"
+            >
+                直接作答
+            </button>
+
+            <form
+                method="post"
+                action="{{ url_for('experiment.start_revisit', index=index) }}"
+            >
+
+                <button
+                    class="primary"
+                    type="submit"
+                >
+                    再次查看地图
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+    const modal = document.getElementById('review-modal');
+    const openReview = document.getElementById('open-review');
+    const returnToAnswer = document.getElementById('return-to-answer');
+
+    if (openReview) {
+        openReview.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+    }
+
+    if (returnToAnswer) {
+        returnToAnswer.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+    }
+
+</script>
+
+{% endblock %}

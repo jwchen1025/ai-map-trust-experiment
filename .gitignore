@@ -1,0 +1,24 @@
+# Test and formal participant data
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+instance/
+evacuation_experiment_web/instance/
+
+# Secrets and local environment settings
+.env
+.env.*
+
+# Python virtual environments and caches
+.venv/
+venv/
+evacuation_experiment_web/.venv/
+__pycache__/
+*.py[cod]
+
+# Editor and operating-system files
+.idea/
+.vscode/
+Thumbs.db
+~$*

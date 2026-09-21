@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block head %}
+<style>
+body:has(.immersive-map){overflow:hidden}body:has(.immersive-map) .site-header{display:none}.immersive-map{width:100vw;height:100dvh;min-height:0;margin-left:calc(50% - 50vw);padding:14px 20px 148px;display:flex;flex-direction:column;background:#edf2f1}.immersive-map .map-stage-top{width:100%;height:26px;flex:0 0 26px;justify-content:flex-end}.immersive-map .full-map{width:100%;height:calc(100dvh - 208px);max-width:100%;max-height:calc(100dvh - 208px);object-fit:contain;margin:0 auto;border:1px solid #c9d4d0}@media(max-width:760px){.immersive-map{padding:12px 12px 112px}.immersive-map .full-map{height:calc(100dvh - 160px);max-height:calc(100dvh - 160px)}}
+</style>
+{% endblock %}
+{% block content %}
+<main class="map-stage immersive-map"><div class="map-stage-top"><p>地图将在 <strong id="timer">{{ seconds }}</strong> 秒后自动关闭</p></div><img class="full-map" src="{{ map_url }}" alt="再次查看的商场疏散地图"><form id="finish" method="post"></form></main>
+{% endblock %}
+{% block scripts %}<script>const form=document.getElementById('finish'),timer=document.getElementById('timer');let left={{ seconds }},sent=false;const submit=()=>{if(!sent){sent=true;form.submit()}};const tick=setInterval(()=>{left-=1;timer.textContent=Math.max(left,0);if(left<=0){clearInterval(tick);submit()}},1000);</script>{% endblock %}

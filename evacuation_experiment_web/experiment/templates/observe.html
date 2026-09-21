@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+html,body{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0
+}
+
+body:has(.immersive-map){
+    overflow:hidden
+}
+
+body:has(.immersive-map) .site-header{
+    display:none
+}
+
+.immersive-map{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100dvh;
+    min-height:0;
+    margin:0;
+    padding:10px;
+    box-sizing:border-box;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    background:#edf2f1
+}
+
+.map-frame{
+    position:relative;
+    width:100%;
+    height:calc(100dvh - 20px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden
+}
+
+.map-frame>.full-map{
+    display:block!important;
+    height:100%!important;
+    width:auto!important;
+    max-height:100%!important;
+    max-width:100%!important;
+    object-fit:contain;
+    margin:0 auto!important;
+    box-sizing:border-box;
+    border:1px solid #c9d4d0
+}
+
+.map-timer{
+    position:fixed;
+    top:18px;
+    right:24px;
+    z-index:20;
+    margin:0;
+    padding:7px 12px;
+    border-radius:6px;
+    background:rgb(255 255 255 / .92);
+    color:#25332f;
+    font-size:15px;
+    box-shadow:0 2px 10px rgb(0 0 0 / .10)
+}
+
+.map-timer strong{
+    font-size:17px
+}
+
+/* =========================================================
+   地图观察提示
+   bottom 从原来的 24px 调整为 82px
+   避开地图底部图例
+   ========================================================= */
+.map-focus-overlay{
+    position:absolute;
+    left:24px;
+    bottom:82px;
+    z-index:10;
+    max-width:620px;
+    margin:0;
+    padding:10px 14px;
+    border-radius:7px;
+    background:rgb(12 30 27 / .82);
+    color:#fff;
+    font-size:15px;
+    line-height:1.55;
+    box-shadow:0 6px 20px rgb(0 0 0 / .16)
+}
+
+@media(max-width:760px){
+
+    .immersive-map{
+        padding:6px
+    }
+
+    .map-frame{
+        height:calc(100dvh - 12px)
+    }
+
+    .map-timer{
+        top:10px;
+        right:10px;
+        font-size:12px
+    }
+
+    .map-focus-overlay{
+        left:12px;
+        right:12px;
+        bottom:70px;
+        max-width:none;
+        font-size:12px
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<main class="map-stage immersive-map">
+
+    <div class="map-frame">
+
+        <img
+            class="full-map"
+            src="{{ map_url }}"
+            alt="商场疏散地图"
+        >
+
+        <p class="map-focus-overlay">
+            请重点关注：安全出口 1、2、3；消防疏散电梯；防火分区 1、2、3；道路连通性。
+        </p>
+
+    </div>
+
+    <p class="map-timer">
+        剩余 <strong id="timer">{{ seconds }}</strong> 秒
+    </p>
+
+    <form id="finish" method="post"></form>
+
+</main>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('finish');
+    const timer = document.getElementById('timer');
+
+    let left = {{ seconds }};
+
+    const tick = setInterval(() => {
+
+        left -= 1;
+
+        timer.textContent = Math.max(left, 0);
+
+        if (left <= 0) {
+
+            clearInterval(tick);
+
+            form.submit();
+
+        }
+
+    }, 1000);
+</script>
+{% endblock %}

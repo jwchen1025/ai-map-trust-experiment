@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+    /* 每道题的 1—7 评分区域 */
+    .rating-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .rating-options label {
+        flex: 1;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    /* 每道题下方的语义说明：仅作解释，不作为交互元素 */
+    .rating-anchors {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-top: 7px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #6b7280;
+    }
+
+    .rating-anchor {
+        width: 42%;
+    }
+
+    .rating-anchor:last-child {
+        text-align: right;
+    }
+
+    .rating-anchors .rating-anchor {
+        display: block;
+        height: auto;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--muted);
+        font-weight: 400;
+    }
+
+    @media (max-width: 760px) {
+        .rating-anchors {
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .rating-anchor {
+            width: 46%;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<main class="questionnaire-layout">
+
+    <!-- 左侧：地图参考 -->
+    <aside class="map-reference">
+
+        <p>疏散地图参考</p>
+
+        <img
+            src="{{ map_url }}"
+            alt="供评价时参考的疏散地图"
+        >
+
+    </aside>
+
+
+    <!-- 右侧：主观评价 -->
+    <section class="questionnaire">
+
+        <p class="eyebrow">主观评价</p>
+
+        <p class="muted">
+            请根据您刚才查看和使用这张地图时的实际感受，
+            对以下陈述进行评价。
+            请从 <strong>1–7</strong> 中选择最符合您判断的数字，
+            每道题下方标注了评分两端的含义。
+        </p>
+
+
+        <form method="post">
+
+            <!-- 各主观评价量表 -->
+            {% for scale, title, items in forms %}
+
+            <section class="scale-group">
+
+                <h2>{{ title }}</h2>
+
+
+                {% for code, text, low_label, high_label in items %}
+
+                <fieldset class="rating">
+
+                    <!-- 题目 -->
+                    <legend>
+                        {{ text }}
+                    </legend>
+
+
+                    <!-- 1—7 分 -->
+                    <div class="rating-options">
+
+                        {% for score in range(1, 8) %}
+
+                        <label>
+
+                            <input
+                                type="radio"
+                                name="{{ code }}"
+                                value="{{ score }}"
+                                required
+                            >
+
+                            <span>{{ score }}</span>
+
+                        </label>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- 每道题对应的语义锚点 -->
+                    <div class="rating-anchors">
+
+                        <span class="rating-anchor">
+                            1 = {{ low_label }}
+                        </span>
+
+                        <span class="rating-anchor">
+                            7 = {{ high_label }}
+                        </span>
+
+                    </div>
+
+                </fieldset>
+
+                {% endfor %}
+
+            </section>
+
+            {% endfor %}
+
+
+            <!-- 地图来源操纵检验 -->
+            <section class="scale-group">
+
+                <h2>关于刚才的地图</h2>
+
+                <fieldset>
+
+                    <legend>
+                        根据刚才的信息，这张地图由谁制作？
+                    </legend>
+
+
+                    <label class="option">
+
+                        <input
+                            type="radio"
+                            name="perceived_source"
+                            value="ai"
+                            required
+                        >
+
+                        <span>人工智能系统</span>
+
+                    </label>
+
+
+                    <label class="option">
+
+                        <input
+                            type="radio"
+                            name="perceived_source"
+                            value="human"
+                        >
+
+                        <span>人类制作者</span>
+
+                    </label>
+
+
+                    <label class="option">
+
+                        <input
+                            type="radio"
+                            name="perceived_source"
+                            value="unsure"
+                        >
+
+                        <span>不确定 / 不记得</span>
+
+                    </label>
+
+                </fieldset>
+
+            </section>
+
+
+            <!-- 提交 -->
+            <button
+                class="primary"
+                type="submit"
+            >
+                继续
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+{% endblock %}

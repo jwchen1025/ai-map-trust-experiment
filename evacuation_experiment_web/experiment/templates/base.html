@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}疏散地图实验{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <a href="{{ url_for('experiment.login') }}" class="wordmark">EVACUATION<br><span>MAP STUDY</span></a>
+      <p class="header-note">火灾疏散地图研究</p>
+    </header>
+    {% with messages=get_flashed_messages() %}
+      {% if messages %}<div class="notice" role="alert">{{ messages[0] }}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+  <script>
+    document.addEventListener('invalid', function(event) {
+      const field = event.target;
+      if (!field.required) return;
+      let message = '请完成此项。';
+      if (field.tagName === 'SELECT' || field.type === 'radio') message = '请选择一个选项。';
+      else if (field.type === 'checkbox') message = '请阅读并勾选确认。';
+      else if (field.tagName === 'TEXTAREA' || field.type === 'text') message = '请填写此项。';
+      else if (field.type === 'number') message = '请填写有效的数字。';
+      field.setCustomValidity(message);
+    }, true);
+    document.addEventListener('input', event => event.target.setCustomValidity(''));
+    document.addEventListener('change', event => event.target.setCustomValidity(''));
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

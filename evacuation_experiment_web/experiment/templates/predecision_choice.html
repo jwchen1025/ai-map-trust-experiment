@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="reading">
+  <p class="eyebrow">进入逃生决策前</p>
+  <h1>是否需要再次查看地图？</h1>
+  <div class="reading-body"><p>在做出逃生决定之前，如果您认为已有的信息足以支持您的判断，可以直接作答；如果您认为还需要进一步确认地图信息，可以选择再次查看地图。是否重新查看由您自行决定。</p></div>
+  <form method="post"><label class="option"><input type="radio" name="review_choice" value="direct" required><span>直接作答</span></label><label class="option"><input type="radio" name="review_choice" value="revisit" required><span>再次查看地图</span></label><button class="primary">继续</button></form>
+</main>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="reading">
+  <p class="eyebrow">地图观察说明</p>
+  <h1>请先阅读以下提示</h1>
+  <div class="reading-body">
+    <p>接下来，疏散地图将以全屏形式展示。请重点注意：安全出口 1、2、3，消防疏散电梯的位置，防火分区 1、2、3，以及道路的连通性。</p>
+    <p>确认开始后，地图将全屏展示 40 秒；请在倒计时结束前持续查看地图。</p>
+  </div>
+  <form method="post"><button class="primary">我已阅读，开始查看地图</button></form>
+</main>
+{% endblock %}
