@@ -135,7 +135,7 @@ body:has(.immersive-map) .site-header{
         >
 
         <p class="map-focus-overlay">
-            请重点关注：安全出口 1、2、3；消防疏散电梯；防火分区 1、2、3；道路连通性。
+            请重点关注：当前位置；安全出口 1、2、3；消防疏散电梯；防火分区 1、2、3；道路连通性。
         </p>
 
     </div>
@@ -155,23 +155,28 @@ body:has(.immersive-map) .site-header{
 <script>
     const form = document.getElementById('finish');
     const timer = document.getElementById('timer');
+    // The server starts the 40-second window when this route is requested.
+    // Therefore slow page or image loading is deliberately included.
+    const deadline = Date.now() + {{ remaining_ms|int }};
+    let submitted = false;
 
-    let left = {{ seconds }};
-
-    const tick = setInterval(() => {
-
-        left -= 1;
-
-        timer.textContent = Math.max(left, 0);
-
-        if (left <= 0) {
-
-            clearInterval(tick);
-
+    function finish() {
+        if (!submitted) {
+            submitted = true;
             form.submit();
-
         }
+    }
 
-    }, 1000);
+    function updateTimer() {
+        const remaining = Math.max(0, deadline - Date.now());
+        timer.textContent = Math.ceil(remaining / 1000);
+        if (remaining === 0) {
+            finish();
+            return;
+        }
+        window.setTimeout(updateTimer, Math.min(250, remaining));
+    }
+
+    updateTimer();
 </script>
 {% endblock %}

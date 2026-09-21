@@ -13,7 +13,7 @@ class Config:
     RESEARCHER_PASSWORD = os.environ.get("RESEARCHER_PASSWORD", "slab-cjw")
     OBSERVATION_SECONDS = 40
     # The single optional revisit is offered before the three decision scenarios.
-    PREDECISION_REVISIT_SECONDS = 10
+    PREDECISION_REVISIT_SECONDS = 15
     # The existing stimulus files remain outside this child project so they can be replaced in one place.
     STIMULUS_DIRECTORY = ROOT_DIR
     CONDITIONS = [
@@ -37,7 +37,7 @@ class Config:
         },
         {
             "code": "3_fire",
-            "prompt": "商您当前位于地图中“当前位置”所示位置。防火分区3（绿色区域）发生火情，通往出口3方向的疏散通道暂时无法通行。请根据刚才查看的疏散地图，选择其他可达出口中您认为最合适的安全出口。",
+            "prompt": "您当前位于地图中“当前位置”所示位置。防火分区3（绿色区域）发生火情，通往出口3方向的疏散通道暂时无法通行。请根据刚才查看的疏散地图，选择其他可达出口中您认为最合适的安全出口。",
             "options": [("A", "出口 1"), ("B", "出口 2"), ("C", "出口 3"), ("D", "消防疏散电梯")],
         },
     ]

@@ -48,9 +48,33 @@ def login():
             flash("请完成所有信息并确认知情同意；参与者年龄须为 16 岁及以上。")
             return render_template("login.html")
         db = get_db(); code = new_code(db)
-        person = db.execute("INSERT INTO participants(participant_code,age,gender,education_level,consent_at,created_at) VALUES(?,?,?,?,?,?) RETURNING id", (code, age, gender, education, stamp(), stamp())).fetchone()
-        trial = db.execute("INSERT INTO sessions(participant_id,status) VALUES(?,?) RETURNING id", (person["id"], "baseline_profile")).fetchone()
-        db.commit(); session.clear(); session["sid"] = trial["id"]
+        participant_values = (code, age, gender, education, stamp(), stamp())
+        if using_postgres():
+            person = db.execute(
+                "INSERT INTO participants(participant_code,age,gender,education_level,consent_at,created_at) VALUES(?,?,?,?,?,?) RETURNING id",
+                participant_values,
+            ).fetchone()
+            participant_id = person["id"]
+            trial = db.execute(
+                "INSERT INTO sessions(participant_id,status) VALUES(?,?) RETURNING id",
+                (participant_id, "baseline_profile"),
+            ).fetchone()
+            session_id = trial["id"]
+        else:
+            # Python 3.8 bundles an older SQLite that has no RETURNING clause.
+            # Cursor.lastrowid works on both the local test database and
+            # PythonAnywhere's SQLite database.
+            person_cursor = db.execute(
+                "INSERT INTO participants(participant_code,age,gender,education_level,consent_at,created_at) VALUES(?,?,?,?,?,?)",
+                participant_values,
+            )
+            trial_cursor = db.execute(
+                "INSERT INTO sessions(participant_id,status) VALUES(?,?)",
+                (person_cursor.lastrowid, "baseline_profile"),
+            )
+            session_id = trial_cursor.lastrowid
+        
+        db.commit(); session.clear(); session["sid"] = session_id
         return redirect(url_for("experiment.introduction"))
     return render_template("login.html")
 
@@ -170,12 +194,28 @@ def observe():
     if not row["map_opened_at"]:
         db.execute("UPDATE sessions SET map_opened_at=? WHERE id=?", (stamp(), row["id"])); db.commit()
         row = session_row()
+    observation_ms = current_app.config["OBSERVATION_SECONDS"] * 1000
+    elapsed = max(0, int((now() - datetime.fromisoformat(row["map_opened_at"])).total_seconds() * 1000))
     if request.method == "POST":
+        # The server, rather than only the browser timer, enforces the full
+        # observation window.  This also makes page and image loading time part
+        # of the fixed 40-second window.
+        if elapsed < observation_ms:
+            return render_template(
+                "observe.html",
+                map_url=url_for("experiment.stimulus", filename=row["map_filename"]),
+                seconds=current_app.config["OBSERVATION_SECONDS"],
+                remaining_ms=observation_ms - elapsed,
+            )
         if not row["map_closed_at"]:
-            elapsed = max(0, int((now() - datetime.fromisoformat(row["map_opened_at"])).total_seconds() * 1000))
             db.execute("UPDATE sessions SET map_closed_at=?, map_view_duration_ms=?, status='scenarios' WHERE id=?", (stamp(), elapsed, row["id"])); db.commit()
         return redirect(url_for("experiment.scenario", index=0))
-    return render_template("observe.html", map_url=url_for("experiment.stimulus", filename=row["map_filename"]), seconds=current_app.config["OBSERVATION_SECONDS"])
+    return render_template(
+        "observe.html",
+        map_url=url_for("experiment.stimulus", filename=row["map_filename"]),
+        seconds=current_app.config["OBSERVATION_SECONDS"],
+        remaining_ms=max(0, observation_ms - elapsed),
+    )
 
 
 @bp.route("/decision-map-choice", methods=["GET", "POST"])
