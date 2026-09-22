@@ -118,6 +118,31 @@ body:has(.immersive-map) .site-header{
         font-size:12px
     }
 }
+
+/* A wide evacuation map is unreadably small in a portrait phone viewport.
+   In portrait only, rotate the map canvas into a landscape reading surface.
+   Desktop and already-landscape phones keep the normal layout above. */
+@media(max-width:760px) and (orientation:portrait){
+    .immersive-map{
+        padding:0
+    }
+
+    .map-frame{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:100dvh;
+        height:100vw;
+        transform:translate(-50%,-50%) rotate(90deg)
+    }
+
+    .map-frame>.full-map{
+        height:100%!important;
+        width:auto!important;
+        max-height:100%!important;
+        max-width:100%!important
+    }
+}
 </style>
 {% endblock %}
 
